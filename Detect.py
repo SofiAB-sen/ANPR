@@ -15,7 +15,7 @@ import func
 
 #Modelos
 modelo_placas = YOLO("yolo11n_Plate_Recognition_v2.pt") 
-modelo_caracteres = YOLO("KFold_ANPR/fold_1/weights/best.pt") #YOLO("yolo11n_OCR_v1.pt") 
+modelo_caracteres = YOLO("yolo11n_OCR_v2.pt") 
 
 parser = argparse.ArgumentParser(description='Detect plates and send results.')
 parser.add_argument('--fecha_hora', required=True, help='Fecha y hora en formato YYYY-MM-DD HH:MM')
