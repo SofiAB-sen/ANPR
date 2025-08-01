@@ -10,10 +10,10 @@ import func  # Tu modulo anterior con run_yolo_detector_placa()
 # Cargar modelos
 modelo_placas = YOLO("yolo11n_Plate_Recognition_v2.pt")
 modelo_caracteres = YOLO("yolo11n_OCR_v2.pt")
-modelo_vehiculos = YOLO("yolo11n.pt")  # Este modelo debe detectar car, truck, motorcycle
+modelo_vehiculos = YOLO("yolo11n.pt")  
 
 
-def detectar_status_y_tipo_y_color(modelo, image_path):
+def detect_estado_tipo_color(modelo, image_path):
     image_bgr = cv2.imread(image_path)
     image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
     resultados = modelo(image_rgb)
@@ -28,15 +28,19 @@ def detectar_status_y_tipo_y_color(modelo, image_path):
     color = None
 
     if len(boxes) > 0:
-        status = "ocupado"
-        # Tomar el primer vehiculo detectado
+        
         box = boxes[0]
         class_id = int(clases[0])
         tipo = nombres[class_id]
+        if tipo in ['car', 'truck', 'motorcycle', 'vehicle']:
+            status = "ocupado"
 
-        x1, y1, x2, y2 = map(int, box)
-        recorte = image_bgr[y1:y2, x1:x2]
-        color = detectar_color_dominante(recorte)
+            x1, y1, x2, y2 = map(int, box)
+            recorte = image_bgr[y1:y2, x1:x2]
+            color = detectar_color_dominante(recorte)
+        else:
+            tipo = 'Otro'
+            color = None
 
     return status, tipo, color
 
@@ -74,7 +78,7 @@ def analizar_imagen(image_path):
     if not os.path.exists(image_path):
         return {"error": "Ruta no válida"}
 
-    status, tipo, color = detectar_status_y_tipo_y_color(modelo_vehiculos, image_path)
+    status, tipo, color = detect_estado_tipo_color(modelo_vehiculos, image_path)
     resultado_placa = func.run_yolo_detector_placa(modelo_placas, modelo_caracteres, image_path, "placas_temp")
     placa = resultado_placa['placa'][0] if resultado_placa else None
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -83,19 +87,17 @@ def analizar_imagen(image_path):
         "plate": placa,
         "status": status,
         "fecha": fecha,
-        "extras": {
-            "color": color,
-            "marca": None,
-            "type": tipo
+        "type": tipo,
+        "color": color
         }
-    }
+
     return resultado
 
 
 if __name__ == "__main__":
     import sys
     if len(sys.argv) != 2:
-        print("Uso: python analyze_image.py ruta/a/imagen.jpg")
+        print("Uso: python Detect_completa.py ruta/a/imagen.jpg")
         exit()
 
     ruta_imagen = sys.argv[1]
