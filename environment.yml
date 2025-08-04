@@ -8,7 +8,7 @@ dependencies:
   - numpy<2
   - pandas
   - pillow
-  - opencv=4.6.0
+  - opencv-python==4.8.0.76
   - matplotlib
   - tqdm
   - pip
