@@ -60,12 +60,12 @@ def run_yolo_detector_placa(model_plates, model_caracteres, path, carpeta_guarda
             cropped_image = cropped_image.resize((96, 48))
             plate = run_yolo_detector_caracteres(model_caracteres, cropped_image)
 
-            save_path = os.path.join(carpeta_guardado, f"{filename}_placa_recortada_{plate}.jpg")
-            cropped_image.save(save_path)	
-            print(f"Placa recortada y guardada: {save_path}")
-            dic['ruta_placa'].append(save_path)
+            #save_path = os.path.join(carpeta_guardado, f"{filename}_placa_recortada_{plate}.jpg")
+            #cropped_image.save(save_path)	
+            #print(f"Placa recortada y guardada: {save_path}")
+            #dic['ruta_placa'].append(save_path)
             dic['placa'].append(plate)
 
-    return dic if dic['ruta_placa'] else None
+    return dic if dic['placa'] else None
     
 
