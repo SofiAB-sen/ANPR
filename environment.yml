@@ -15,3 +15,9 @@ dependencies:
   - matplotlib
   - pandas
 prefix: /opt/anaconda3/envs/yolo-detect
+  - pip:
+      - ultralytics==8.3.174
+      - psutil
+      - py-cpuinfo
+      - ultralytics-thop>=2.0.0
+
