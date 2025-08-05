@@ -1,18 +1,17 @@
 name: yolo-detect
 channels:
+  - http://ssb.stsci.edu/astroconda
   - defaults
-  - conda-forge
-  - pytorch
 dependencies:
   - python=3.10
-  - numpy<2
-  - pandas
+  - cpuonly
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pyyaml
   - pillow
-  - opencv-python==4.8.0.76
-  - matplotlib
   - tqdm
-  - pip
-  - pip:
-      - ultralytics==8.1.35
-
-
+  - seaborn
+  - matplotlib
+  - pandas
+prefix: /opt/anaconda3/envs/yolo-detect
