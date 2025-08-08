@@ -26,9 +26,9 @@ def run_yolo_detector_characteres(model, image_pil):
 
         print(f"🔎 Detected '{label}' with {conf:.2f} confidence at [{x1}, {y1}, {x2}, {y2}]")
 
-    placa = ''.join(plate)
-    print(f"Placa: {placa}")
-    return placa
+    plate = ''.join(plate)
+    print(f"plate: {plate}")
+    return plate
 
 def run_yolo_detector_plate(model_plates, model_characteres, path, save_folder):
     
@@ -52,7 +52,7 @@ def run_yolo_detector_plate(model_plates, model_characteres, path, save_folder):
         class_id = int(class_ids[i])
         class_name = names[class_id] 
 
-        if score >= min_score and class_name.lower() in ["license plate", "vehicle registration plate", "placa"]:
+        if score >= min_score and class_name.lower() in ["license plate", "vehicle registration plate", "plate"]:
             print(f"Plate found with {int(100 * score)}% confidence.")
 
             xmin, ymin, xmax, ymax = map(int, box)
@@ -60,11 +60,12 @@ def run_yolo_detector_plate(model_plates, model_characteres, path, save_folder):
             cropped_image = cropped_image.resize((96, 48))
             plate = run_yolo_detector_characteres(model_characteres, cropped_image)
 
-            #save_path = os.path.join(save_folder, f"{filename}_placa_recortada_{plate}.jpg")
+            #SAVING DATA AND PLATE
+            #save_path = os.path.join(save_folder, f"{filename}_plate_recortada_{plate}.jpg")
             #cropped_image.save(save_path)	
-            #print(f"Placa recortada y guardada: {save_path}")
-            #dic['ruta_placa'].append(save_path)
-            dic['placa'].append(plate)
+            #print(f"plate recortada y guardada: {save_path}")
+            #dic['ruta_plate'].append(save_path)
+            dic['plate'].append(plate)
 
     return dic if dic['plate'] else None
     
