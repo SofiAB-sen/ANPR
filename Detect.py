@@ -13,63 +13,58 @@ import argparse
 
 import func
 
-#Modelos
-modelo_placas = YOLO("yolo11n_Plate_Recognition_v2.pt") 
-modelo_caracteres = YOLO("yolo11n_OCR_v2.pt") 
+#Models
+plate_model = YOLO("yolo11n_Plate_Recognition_v2.pt") 
+characters_model = YOLO("yolo11n_OCR_v2.pt") 
 
 parser = argparse.ArgumentParser(description='Detect plates and send results.')
-parser.add_argument('--fecha_hora', required=True, help='Fecha y hora en formato YYYY-MM-DD HH:MM')
-parser.add_argument('--ubicacion', required=True, help='Ubicación de la cámara')
-parser.add_argument('--id_camara', required=True, help='ID de la cámara')
-parser.add_argument('--image_path', required=True, help='Ruta a la imagen o carpeta de imágenes')
+parser.add_argument('--date_time', required=True, help='Date and time in YYYY-MM-DD HH:MM format')
+parser.add_argument('--location', required=True, help='Camera location')
+parser.add_argument('--id_camara', required=True, help='Camera ID')
+parser.add_argument('--image_path', required=True, help='Path to image file or folder')
 
 args = parser.parse_args()
 
 #Obtener argumentos 
-fecha_hora = args.fecha_hora
-ubicacion = args.ubicacion
+date_time = args.date_time
+location = args.location
 id_camara = args.id_camara
 image_path = args.image_path
 
-"""fecha_hora = input("Ingrese la fecha y hora (YYYY-MM-DD HH:MM): ") or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-ubicacion = input("Ingrese la ubicación: ")
-id_camara = input("Ingrese el ID de la cámara: ")
-
-image_path = input("Ingrese la ruta de la imagen o carpeta: ")"""
 
 if not os.path.exists(image_path):
-    print("La ruta no existe.")
+    print("Teh path does not exists.")
     exit()
   
-output_folder = "Placas_recortadas_yolo" #Carpeta de guardado placas recortadas
+output_folder = "YOLO_plates" #Saving folder for cut plates
 os.makedirs(output_folder, exist_ok=True)
 
-tabla_resultados = "registro_placas.csv"
-columnas = ["fecha_hora", "ubicacion", "camara_id", "ruta_placa", "placa"]
-if os.path.exists(tabla_resultados):
-    df = pd.read_csv(tabla_resultados)
+results_table = "plate_register.csv"
+columnas = ["date_time", "location", "camara_id", "plate_path", "plate"]
+if os.path.exists(results_table):
+    df = pd.read_csv(results_table)
 else:
-    pd.DataFrame(columns=columnas).to_csv(tabla_resultados, index=False)
+    pd.DataFrame(columns=columnas).to_csv(results_table, index=False)
 
-def procesar_imagen(ruta_imagen):
-    resultado = func.run_yolo_detector_placa(modelo_placas, modelo_caracteres, ruta_imagen, output_folder)
-    if resultado:
-        df = pd.read_csv(tabla_resultados)
-        for ruta_placa, placa in zip(resultado["ruta_placa"], resultado["placa"]):
-            nueva_fila = pd.DataFrame([[fecha_hora, ubicacion, id_camara, ruta_placa, placa]], columns=columnas)
-            df = pd.concat([df, nueva_fila], ignore_index=True)
-        df.to_csv(tabla_resultados, index=False)
-        print(f"Resultados guardados en {tabla_resultados}")
+def process_image(image_path):
+    result = func.run_yolo_detector_plate(plate_model, characters_model, image_path, output_folder)
+    if result:
+        df = pd.read_csv(results_table)
+        for plate_path, plate in zip(result["plate_path"], result["plate"]):
+            new_row = pd.DataFrame([[date_time, location, id_camara, plate_path, plate]], columns=columnas)
+            df = pd.concat([df, new_row], ignore_index=True)
+        df.to_csv(results_table, index=False)
+        print(f"results saved in {results_table}")
 
-#Si es carpeta, procesar todas las imágenes
+#if it is a folder, process every image
 if os.path.isdir(image_path):
-    extensiones = [".jpg", ".jpeg", ".png"]
-    imagenes = [os.path.join(dp, f) for dp, dn, filenames in os.walk(image_path) for f in filenames if os.path.splitext(f)[1].lower() in extensiones]
-    for img in imagenes:
-        procesar_imagen(img)
+    extensions = [".jpg", ".jpeg", ".png"]
+    images = [os.path.join(dp, f) for dp, dn, filenames in os.walk(image_path) for f in filenames if os.path.splitext(f)[1].lower() in extensions]
+    for img in images:
+        process_image(img)
 else:
-    procesar_imagen(image_path)
+    process_image(image_path)
 
-print(f"✅ CSV actualizado: {tabla_resultados}")
-print(f"✅ Placas recortadas guardadas en: {output_folder}")
+print(f"✅ CSV updated: {results_table}")
+print(f"✅ Plates saved in: {output_folder}")
 

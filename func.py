@@ -9,8 +9,8 @@ import glob
 
 
 
-def run_yolo_detector_caracteres(model, image_pil):
-    results = model(image_pil)  # Now run on cropped plate directly
+def run_yolo_detector_characteres(model, image_pil):
+    results = model(image_pil)  
     detections = results[0].boxes
     top_boxes = sorted(detections, key=lambda box: float(box.conf), reverse=True)[:6]
 
@@ -30,7 +30,7 @@ def run_yolo_detector_caracteres(model, image_pil):
     print(f"Placa: {placa}")
     return placa
 
-def run_yolo_detector_placa(model_plates, model_caracteres, path, carpeta_guardado):
+def run_yolo_detector_plate(model_plates, model_characteres, path, save_folder):
     
     image_pil = Image.open(path).convert("RGB")
     
@@ -46,7 +46,7 @@ def run_yolo_detector_placa(model_plates, model_caracteres, path, carpeta_guarda
     min_score = 0.4  # Minimum score threshold for detection
     filename = os.path.splitext(os.path.basename(path))[0]
 
-    dic = {'ruta_placa': [], 'placa': []}
+    dic = {'plate_path': [], 'plate': []}
     for i, box in enumerate(boxes):
         score = scores[i]
         class_id = int(class_ids[i])
@@ -58,14 +58,14 @@ def run_yolo_detector_placa(model_plates, model_caracteres, path, carpeta_guarda
             xmin, ymin, xmax, ymax = map(int, box)
             cropped_image = image_pil.crop((xmin, ymin, xmax, ymax))
             cropped_image = cropped_image.resize((96, 48))
-            plate = run_yolo_detector_caracteres(model_caracteres, cropped_image)
+            plate = run_yolo_detector_characteres(model_characteres, cropped_image)
 
-            #save_path = os.path.join(carpeta_guardado, f"{filename}_placa_recortada_{plate}.jpg")
+            #save_path = os.path.join(save_folder, f"{filename}_placa_recortada_{plate}.jpg")
             #cropped_image.save(save_path)	
             #print(f"Placa recortada y guardada: {save_path}")
             #dic['ruta_placa'].append(save_path)
             dic['placa'].append(plate)
 
-    return dic if dic['placa'] else None
+    return dic if dic['plate'] else None
     
 
